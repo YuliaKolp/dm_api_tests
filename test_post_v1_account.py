@@ -1,12 +1,14 @@
-import requests
+import pprint
 
+import requests
+from json import loads
 
 def test_post_v1_account():
     # регистрация пользователя
 
-    login = 'vmenshikov-test'
+    login = 'yk-test'
     password = '123456789'
-    email =  f'{login} @ mail. ru'
+    email = f'{login} @ mail. ru'
     json_data = {
         'login': login,
         'email': email,
@@ -14,8 +16,9 @@ def test_post_v1_account():
     }
 
     response = requests.post('http://5.63.153.31:5051/v1/account', json=json_data)
-    print(response.status_code)
+    status_code = response.status_code
     print(response.text)
+    assert status_code == 201, f"User is not created {response.json()}"
 
     # получить письма из почтового сервера
 
@@ -24,14 +27,29 @@ def test_post_v1_account():
     }
     response = requests.get('http://5.63.153.31:5025/api/v2/messages', params=params, verify=False)
     print(response.status_code)
-    print(response.text)
+    status_code = response.status_code
+    assert status_code == 200, f"No letters are received"
+
+    # Получить токен
+    token = None
+
+    for item in response.json()['items']:
+        user_data = loads(item['Content']['Body'])
+        user_login = user_data['Login']
+
+        if user_login == login:
+            print(user_login)
+            token = user_data['ConfirmationLinkUrl'].split('/')[-1]
+            print(token)
+    assert token is not None, f"No token for user {login}"
 
     # активация пользователя
-    url = 'http://5.63.153.31:5051/v1/account/f755b9d2-4ae8-4f70-9b77-8f2b66339097'
+    url = f'http://5.63.153.31:5051/v1/account/{token}'
 
     response = requests.put(url=url)
     print(response.status_code)
     print(response.text)
+    assert status_code == 200, f"User is not activated {response.json()}"
 
     # авторизоваться
 
@@ -44,3 +62,4 @@ def test_post_v1_account():
     response = requests.post('http://5.63.153.31:5051/v1/account/login', json=json_data)
     print(response.status_code)
     print(response.text)
+    assert status_code == 200, f"User cannot authorise {response.json()}"
