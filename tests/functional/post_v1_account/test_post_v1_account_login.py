@@ -6,7 +6,7 @@ from api_mailhog.apis.mailhog_api import MailhogApi
 from utils import utils
 
 
-def test_post_v1_account():
+def test_post_v1_account_login():
     # регистрация пользователя
     account_api = AccountApi(host='http://5.63.153.31:5051')
     login_api = LoginApi(host='http://5.63.153.31:5051')
@@ -41,15 +41,19 @@ def test_post_v1_account():
     status_code = response.status_code
     assert status_code == 200, f"User is not activated {response.json()}"
 
-    # авторизоваться
+    # TODO add parametrized tests with empty password and password belong to another user
+
+    # авторизоваться c неверным паролем
+    wrong_password = utils.generate_random_string(len(password))  # try to use password of the same length
+
     json_data = {
         'login': login,
-        'password': password,
+        'password': wrong_password,
         'rememberMe': True,
     }
     response = login_api.post_v1_account_login(json_data=json_data)
     status_code = response.status_code
-    assert status_code == 200, f"User cannot authorise {response.json()}"
+    assert status_code == 400, f"User can authorise with wrong password {response.json()}"
 
 
 def get_activation_token_by_login(

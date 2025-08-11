@@ -6,7 +6,7 @@ from api_mailhog.apis.mailhog_api import MailhogApi
 from utils import utils
 
 
-def test_post_v1_account():
+def test_put_v1_account_token():
     # регистрация пользователя
     account_api = AccountApi(host='http://5.63.153.31:5051')
     login_api = LoginApi(host='http://5.63.153.31:5051')
@@ -33,13 +33,16 @@ def test_post_v1_account():
 
     # Получить токен
     token = get_activation_token_by_login(login, response)
-
     assert token is not None, f"No token for user {login}"
 
-    # активация пользователя
-    response = account_api.put_v1_account_token(token=token)
+    # неверный токен
+    wrong_token = utils.generate_random_string(len(token))  # try to use token of the same length
+    # активация пользователя c неверным токеном
+    response = account_api.put_v1_account_token(token=wrong_token)
     status_code = response.status_code
-    assert status_code == 200, f"User is not activated {response.json()}"
+    assert status_code == 400, f"User is activated {response.json()}"
+
+    # TODO add parametrized tests with empty token and token belong to another user
 
     # авторизоваться
     json_data = {
@@ -49,7 +52,7 @@ def test_post_v1_account():
     }
     response = login_api.post_v1_account_login(json_data=json_data)
     status_code = response.status_code
-    assert status_code == 200, f"User cannot authorise {response.json()}"
+    assert status_code == 403, f"User CAN authorise {response.json()}"
 
 
 def get_activation_token_by_login(
