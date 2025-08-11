@@ -65,6 +65,7 @@ def test_put_v1_account():
     assert status_code == 403, f"User can authorise after email has been altered {response.json()}"
 
     # получить письма из почтового сервера с измененным email
+    # TODO add tests whether email and login correspond
 
     response = mailhog_api.get_api_v2_messages()
     status_code = response.status_code
