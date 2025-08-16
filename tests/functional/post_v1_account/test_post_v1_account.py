@@ -1,9 +1,17 @@
 from json import loads
 
+import structlog
+
 from dm_api_account.apis.account_api import AccountApi
 from dm_api_account.apis.login_api import LoginApi
 from api_mailhog.apis.mailhog_api import MailhogApi
 from utils import utils
+
+structlog.configure(
+    processors=[
+        structlog.processors.JSONRenderer(indent=4, ensure_ascii=True, sort_keys=True)
+    ]
+)
 
 
 def test_post_v1_account():
@@ -27,7 +35,6 @@ def test_post_v1_account():
     # получить письма из почтового сервера
 
     response = mailhog_api.get_api_v2_messages()
-    print(f'{response.status_code}')
     status_code = response.status_code
     assert status_code == 200, f"No letters are received. Status code is {status_code}"
 
