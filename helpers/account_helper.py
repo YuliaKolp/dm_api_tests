@@ -1,8 +1,32 @@
+import time
 from json import loads
 
 from services.api_mailhog import MailHogApi
 from services.dm_api_account import DMApiAccount
 from utils import utils
+
+
+def retrier(
+        function
+):
+    def wrapper(
+            *args,
+            **kwargs
+    ):
+        token = None
+        count = 0
+        retry_number = 5
+        while token is None:
+            print(f'/****/ Попытка получения токена # {count} /****/')
+            token = function(*args, **kwargs)
+            count += 1
+            if count == retry_number:
+                raise AssertionError("Превышено количество попыток получения активационного токена")
+            if token:
+                return token
+            time.sleep(1)
+
+    return wrapper
 
 
 class AccountHelper:
@@ -28,9 +52,8 @@ class AccountHelper:
 
         response = self.dm_api_account_api.account_api.post_v1_account(json_data=json_data)
         assert response.status_code == 201, f"User is not created {response.json()}"
-        response = self.mailhog.mailhog_api.get_api_v2_messages()
-        assert response.status_code == 200, f"No letters are received. Status code is {response.status_code}"
-        token = self.get_activation_token_by_login(login=login, response=response)
+
+        token = self.get_activation_token_by_login(login=login)
         assert token is not None, f"No token for user {login}"
         response = self.dm_api_account_api.account_api.put_v1_account_token(token=token)
         assert response.status_code == 200, f"User is not activated {response.json()}"
@@ -67,15 +90,17 @@ class AccountHelper:
         assert response.status_code == 400, f"User can authorise with wrong password {response.json()}"
         return response
 
-    @staticmethod
+    @retrier
     def get_activation_token_by_login(
-            login,
-            response
+            self,
+            login
     ):
         token = None
+        #time.sleep(3)
+        response = self.mailhog.mailhog_api.get_api_v2_messages()
         for item in response.json()['items']:
             user_data = loads(item['Content']['Body'])
-            user_login = user_data['Login']
+            user_login = user_data['Login'] 
             if user_login == login:
                 token = user_data['ConfirmationLinkUrl'].split('/')[-1]
 
