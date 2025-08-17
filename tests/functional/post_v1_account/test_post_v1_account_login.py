@@ -16,6 +16,8 @@ structlog.configure(
         )
     ]
 )
+
+
 def test_post_v1_account_login():
     # регистрация пользователя
     mailhog_configuration = MailhogConfiguration(host='http://5.63.153.31:5025')
@@ -35,6 +37,4 @@ def test_post_v1_account_login():
     # TODO add parametrized tests with empty password and password belong to another user
 
     # авторизоваться c неверным паролем
-
     account_helper.user_login_wrong_password(login=login, password=password)
-
