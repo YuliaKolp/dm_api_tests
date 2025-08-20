@@ -1,8 +1,43 @@
+import time
 from json import loads
+from requests.exceptions import HTTPError
+
+import pytest
 
 from services.api_mailhog import MailHogApi
 from services.dm_api_account import DMApiAccount
 from utils import utils
+from retrying import retry
+
+
+def retry_if_result_none(
+        result
+):
+    """Return True if we should retry (in this case when result is None), False otherwise"""
+    return result is None
+
+
+def retrier(
+        function
+):
+    def wrapper(
+            *args,
+            **kwargs
+    ):
+        token = None
+        count = 0
+        retry_number = 5
+        while token is None:
+            print(f'/****/ Попытка получения токена # {count} /****/')
+            token = function(*args, **kwargs)
+            count += 1
+            if count == retry_number:
+                raise AssertionError("Превышено количество попыток получения активационного токена")
+            if token:
+                return token
+            time.sleep(1)
+
+    return wrapper
 
 
 class AccountHelper:
@@ -28,9 +63,8 @@ class AccountHelper:
 
         response = self.dm_api_account_api.account_api.post_v1_account(json_data=json_data)
         assert response.status_code == 201, f"User is not created {response.json()}"
-        response = self.mailhog.mailhog_api.get_api_v2_messages()
-        assert response.status_code == 200, f"No letters are received. Status code is {response.status_code}"
-        token = self.get_activation_token_by_login(login=login, response=response)
+
+        token = self.get_activation_token_by_login(login=login)
         assert token is not None, f"No token for user {login}"
         response = self.dm_api_account_api.account_api.put_v1_account_token(token=token)
         assert response.status_code == 200, f"User is not activated {response.json()}"
@@ -48,8 +82,13 @@ class AccountHelper:
             'rememberMe': remember_me,
         }
         response = self.dm_api_account_api.login_api.post_v1_account_login(json_data=json_data)
-        assert response.status_code == 200, f"User cannot authorise {response.json()}"
-        return response
+
+        if response.status_code == 200:
+            return response
+        else:
+            raise Exception(f"User cannot authorise {response.json()} {response.status_code}")
+        #assert response.status_code == 200, f"User cannot authorise {response.json()}"
+        #return response
 
     # Костыль - Не знаю, как красиво переопределить (?) метод user_login
     def user_login_wrong_password(
@@ -67,12 +106,15 @@ class AccountHelper:
         assert response.status_code == 400, f"User can authorise with wrong password {response.json()}"
         return response
 
-    @staticmethod
+    # @retrier
+    @retry(stop_max_attempt_number=5, retry_on_result=retry_if_result_none, wait_fixed=1000)
     def get_activation_token_by_login(
-            login,
-            response
+            self,
+            login
     ):
         token = None
+        # time.sleep(3)
+        response = self.mailhog.mailhog_api.get_api_v2_messages()
         for item in response.json()['items']:
             user_data = loads(item['Content']['Body'])
             user_login = user_data['Login']
