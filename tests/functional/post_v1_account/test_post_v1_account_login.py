@@ -1,4 +1,7 @@
 import pytest
+import requests
+from requests.exceptions import HTTPError
+
 import structlog
 
 from helpers.account_helper import AccountHelper
@@ -45,9 +48,10 @@ def test_post_v1_account_login(account_helper):
     password = '123456789'
     email = f'{login}@mail.ru'
 
-    account_helper.register_new_user(login=login, password=password, email=email)
+    account_helper.register_and_activate_new_user(login=login, password=password, email=email)
 
     # TODO add parametrized tests with empty password and password belong to another user
 
     # авторизоваться c неверным паролем
-    account_helper.user_login_wrong_password(login=login, password=password)
+    response = account_helper.user_login(login=login, password=f'{password}_WRONG')
+    assert response.status_code == 400, (f"User cannot authorise!{response.json()}")
