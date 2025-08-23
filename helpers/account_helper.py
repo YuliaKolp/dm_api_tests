@@ -64,9 +64,28 @@ class AccountHelper:
         response = self.dm_api_account_api.account_api.post_v1_account(json_data=json_data)
         assert response.status_code == 201, f"User is not created {response.json()}"
 
+        return response
+
+    def register_and_activate_new_user(
+            self,
+            login: str,
+            password: str,
+            email: str
+    ):
+        json_data = {
+            'login': login,
+            'email': email,
+            'password': password,
+        }
+
+        response = self.dm_api_account_api.account_api.post_v1_account(json_data=json_data)
+        assert response.status_code == 201, f"User is not created {response.json()}"
+
         token = self.get_activation_token_by_login(login=login)
         assert token is not None, f"No token for user {login}"
+
         response = self.dm_api_account_api.account_api.put_v1_account_token(token=token)
+
         assert response.status_code == 200, f"User is not activated {response.json()}"
         return response
 
@@ -83,28 +102,8 @@ class AccountHelper:
         }
         response = self.dm_api_account_api.login_api.post_v1_account_login(json_data=json_data)
 
-        if response.status_code == 200:
-            return response
-        else:
-            raise Exception(f"User cannot authorise {response.json()} {response.status_code}")
-        #assert response.status_code == 200, f"User cannot authorise {response.json()}"
-        #return response
-
-    # Костыль - Не знаю, как красиво переопределить (?) метод user_login
-    def user_login_wrong_password(
-            self,
-            login: str,
-            password: str
-    ):
-        wrong_password = utils.generate_random_string(len(password))  # try to use password of the same length
-        json_data = {
-            'login': login,
-            'password': wrong_password,
-            'rememberMe': True,
-        }
-        response = self.dm_api_account_api.login_api.post_v1_account_login(json_data=json_data)
-        assert response.status_code == 400, f"User can authorise with wrong password {response.json()}"
         return response
+
 
     # @retrier
     @retry(stop_max_attempt_number=5, retry_on_result=retry_if_result_none, wait_fixed=1000)
@@ -122,3 +121,18 @@ class AccountHelper:
                 token = user_data['ConfirmationLinkUrl'].split('/')[-1]
 
         return token
+
+    def put_v1_account_email(
+            self,
+            login: str,
+            password: str,
+            new_email: str
+    ):
+        json_data = {
+                    'login': login,
+                    'password': password,
+                    'email': new_email,
+                }
+
+        response = self.dm_api_account_api.account_api.put_v1_account_email(json_data=json_data)
+        assert response.status_code == 200, f"Email for user with login '{login}' are NOT changed. Status code is {response.status_code}"
