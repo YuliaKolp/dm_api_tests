@@ -33,5 +33,5 @@ def test_put_v1_account_token():
     # активация с неверным токеном
     wrong_token_len = 7
     wrong_token = utils.generate_random_string(wrong_token_len)
-    response = account_helper.dm_api_account_api.account_api.put_v1_account_token(token=wrong_token)
+    response = account_helper.dm_account_api.account_api.put_v1_account_token(token=wrong_token)
     assert response.status_code == 400, f"User is activated {response.json()}"
