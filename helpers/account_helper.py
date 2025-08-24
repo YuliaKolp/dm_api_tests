@@ -1,12 +1,8 @@
 import time
 from json import loads
-from requests.exceptions import HTTPError
-
-import pytest
 
 from services.api_mailhog import MailHogApi
 from services.dm_api_account import DMApiAccount
-from utils import utils
 from retrying import retry
 
 
@@ -59,8 +55,10 @@ class AccountHelper:
                 'login': login,
                 'password': password
             }
-            )
-        token = {"x-dm-auth-token":response.headers["x-dm-auth-token"]}
+        )
+        token = {
+            "x-dm-auth-token": response.headers["x-dm-auth-token"]
+        }
         self.dm_account_api.account_api.set_headers(token)
         self.dm_account_api.login_api.set_headers(token)
 
@@ -150,3 +148,29 @@ class AccountHelper:
 
         response = self.dm_account_api.account_api.put_v1_account_email(json_data=json_data)
         assert response.status_code == 200, f"Email for user with login '{login}' are NOT changed. Status code is {response.status_code}"
+
+    def put_v1_account_password(
+            self,
+            login: str,
+            token: str,
+            password: str,
+            new_password: str
+    ):
+        """
+        Change registered user password
+        :return:
+        """
+        headers = {
+            'accept': 'text/plain',
+            'Content-Type': 'application/json',
+            'X-Dm-Auth-Token': token
+        }
+
+        json_data = {
+            'login': login,
+            'oldPassword': password,
+            'newPassword': new_password
+        }
+        # self.dm_account_api.account_api.set_headers(token)
+        response = self.dm_account_api.account_api.put_v1_account_password(headers=headers, json_data=json_data)
+        return response
