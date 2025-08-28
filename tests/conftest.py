@@ -8,22 +8,23 @@ from restclient.configuration import Configuration as MailhogConfiguration
 from services.api_mailhog import MailHogApi
 from services.dm_api_account import DMApiAccount
 
+fixture_scope_value = "function" # "session" "function"
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope=fixture_scope_value)
 def mailhog_api():
     mailhog_configuration = MailhogConfiguration(host='http://5.63.153.31:5025')
     mailhog_client = MailHogApi(configuration=mailhog_configuration)
     return mailhog_client
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope=fixture_scope_value)
 def account_api():
     dm_api_configuration = DmApiConfiguration(host='http://5.63.153.31:5051', disable_log=False)
     account = DMApiAccount(configuration=dm_api_configuration)
     return account
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope=fixture_scope_value)
 def account_helper(
         account_api,
         mailhog_api
@@ -44,7 +45,7 @@ def prepare_user():
     return user
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope=fixture_scope_value)
 def auth_account_helper(
         mailhog_api
         ):
