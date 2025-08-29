@@ -149,7 +149,7 @@ class AccountHelper:
         response = self.dm_account_api.account_api.put_v1_account_email(json_data=json_data)
         assert response.status_code == 200, f"Email for user with login '{login}' are NOT changed. Status code is {response.status_code}"
 
-    def put_v1_account_password(
+    def change_user_password(
             self,
             login: str,
             token: str,

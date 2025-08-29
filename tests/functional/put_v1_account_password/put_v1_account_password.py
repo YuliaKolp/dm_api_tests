@@ -1,16 +1,5 @@
-import structlog
-
 from utils import utils
 
-structlog.configure(
-    processors=[
-        structlog.processors.JSONRenderer(
-            indent=4,
-            ensure_ascii=True,
-            sort_keys=True
-        )
-    ]
-)
 
 def test_put_v1_account_password(
         account_helper,
@@ -30,7 +19,7 @@ def test_put_v1_account_password(
 
     # смена пароля
     new_password = utils.generate_random_string(str_length=9)
-    response = account_helper.put_v1_account_password(login=login, token=token, password=password, new_password=new_password)
+    response = account_helper.change_user_password(login=login, token=token, password=password, new_password=new_password)
     assert response.status_code == 200, f"Password is not changed {response.json()}"
 
     # авторизоваться c новым паролем
