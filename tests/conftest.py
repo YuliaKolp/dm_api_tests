@@ -8,7 +8,7 @@ from restclient.configuration import Configuration as MailhogConfiguration
 from services.api_mailhog import MailHogApi
 from services.dm_api_account import DMApiAccount
 
-fixture_scope_value = "session" # "session" "function"
+fixture_scope_value = "function" # "session" "function"
 
 @pytest.fixture(scope=fixture_scope_value)
 def mailhog_api():
