@@ -2,7 +2,7 @@ from datetime import datetime
 
 import structlog
 
-from conftest import LOGIN_PREFIX
+#from conftest import LOGIN_PREFIX
 
 structlog.configure(
     processors=[
@@ -25,7 +25,7 @@ from hamcrest import (
     has_items,
 )
 
-
+LOGIN_PREFIX = "yk_test"
 def test_get_v1_account_auth(
         auth_account_helper
 ):

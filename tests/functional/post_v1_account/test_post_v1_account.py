@@ -21,8 +21,8 @@ from hamcrest import (
     equal_to,
 )
 
-from conftest import LOGIN_PREFIX
-
+#from conftest import LOGIN_PREFIX
+LOGIN_PREFIX = "yk_test"
 
 def test_post_v1_account(
         account_helper,
