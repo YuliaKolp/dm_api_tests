@@ -10,6 +10,7 @@ from services.dm_api_account import DMApiAccount
 
 fixture_scope_value = "session"  # "session" "function"
 
+LOGIN_PREFIX = "yk_test"
 
 @pytest.fixture(scope=fixture_scope_value)
 def mailhog_api():
@@ -33,19 +34,6 @@ def account_helper(
     account_helper = AccountHelper(dm_account_api=account_api, mailhog=mailhog_api)
     return account_helper
 
-
-@pytest.fixture
-def prepare_user():
-    now = datetime.now()
-    data = now.strftime("%d_%m_%Y_%H_%M_%S_%f")  # add microsecond to timestamp to make email unique
-    login = f"yk_test{data}"
-    password = '123456789'
-    email = f'{login}@mail.ru'
-    User = namedtuple("User", ["login", "password", "email"])
-    user = User(login=login, password=password, email=email)
-    return user
-
-
 @pytest.fixture(scope="function")
 def auth_account_helper(
         mailhog_api
@@ -59,3 +47,14 @@ def auth_account_helper(
         )  # yk_test30_08_2025_17_46_58_584317
 
     return account_helper
+
+@pytest.fixture
+def prepare_user():
+    now = datetime.now()
+    data = now.strftime("%d_%m_%Y_%H_%M_%S_%f")  # add microsecond to timestamp to make email unique
+    login = f"{LOGIN_PREFIX }{data}"
+    password = '123456789'
+    email = f'{login}@mail.ru'
+    User = namedtuple("User", ["login", "password", "email"])
+    user = User(login=login, password=password, email=email)
+    return user

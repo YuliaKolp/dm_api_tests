@@ -108,7 +108,8 @@ class AccountHelper:
             login: str,
             password: str,
             remember_me: bool = True,
-            validate_response=False
+            validate_response=False,
+            validate_headers=False
     ):
         login_credentials = LoginCredentials(
             login=login,
@@ -119,8 +120,9 @@ class AccountHelper:
             login_credentials=login_credentials,
             validate_response=validate_response
         )
-        # assert response.headers["x-dm-auth-token"], f"Tокен не был получен"
-        # assert response.status_code == 200, f"Пользователь не смог авторизоваться"
+        if validate_headers:
+            assert response.headers["x-dm-auth-token"], f"Tокен не был получен"
+            assert response.status_code == 200, f"Пользователь не смог авторизоваться"
         return response
 
     # @retrier
@@ -130,7 +132,6 @@ class AccountHelper:
             login
     ):
         token = None
-        # time.sleep(3)
         response = self.mailhog.mailhog_api.get_api_v2_messages()
         for item in response.json()['items']:
             user_data = loads(item['Content']['Body'])
@@ -179,4 +180,15 @@ class AccountHelper:
         }
         # self.dm_account_api.account_api.set_headers(token)
         response = self.dm_account_api.account_api.put_v1_account_password(headers=headers, json_data=json_data)
+        return response
+
+    def get_user(
+            self,
+            validate_response=False
+    ):
+        """
+        Get current user
+        :return:
+        """
+        response = self.dm_account_api.account_api.get_v1_account(validate_response=validate_response)
         return response

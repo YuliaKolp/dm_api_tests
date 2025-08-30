@@ -20,6 +20,7 @@ class LoginApi(RestClient):
         if validate_response:
             return UserEnvelope(**response.json())
         return response
+
     def delete_v1_account_login(
             self,
             **kwargs
