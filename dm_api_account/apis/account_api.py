@@ -22,6 +22,7 @@ class AccountApi(RestClient):
 
     def get_v1_account(
             self,
+            validate_response=True,
             **kwargs
     ):
         """
@@ -32,13 +33,14 @@ class AccountApi(RestClient):
             path=f'/v1/account',
             **kwargs
         )
-        UserEnvelope(**response.json())
+        if validate_response:
+            UserEnvelope(**response.json())
         return response
-
 
     def put_v1_account_token(
             self,
-            token, validate_response=True
+            token,
+            validate_response=True
     ):
         """
         Activate registered user
@@ -78,7 +80,7 @@ class AccountApi(RestClient):
             self,
             headers,
             json_data
-            ):
+    ):
         """
         Change registered user password
         :return:

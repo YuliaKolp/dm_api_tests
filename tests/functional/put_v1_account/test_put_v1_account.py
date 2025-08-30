@@ -15,7 +15,7 @@ def test_put_v1_account(
 
     # смена email
     new_email = f'{login}_NEW@mail.ru'
-    account_helper.put_v1_account_email(login=login, password=password, new_email=new_email)
+    account_helper.change_account_email(login=login, password=password, new_email=new_email)
 
     # авторизоваться после смены пароля
     response = account_helper.user_login(login=login, password=password)

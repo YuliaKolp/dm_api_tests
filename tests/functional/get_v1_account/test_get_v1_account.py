@@ -9,5 +9,5 @@ def test_get_v1_account_auth(
 def test_get_v1_account_no_auth(
         account_helper
 ):
-    response = account_helper.dm_account_api.account_api.get_v1_account()
+    response = account_helper.dm_account_api.account_api.get_v1_account(validate_response=False)
     assert response.status_code == 401, "Can get user account"

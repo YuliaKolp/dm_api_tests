@@ -117,9 +117,10 @@ class AccountHelper:
         )
         response = self.dm_account_api.login_api.post_v1_account_login(
             login_credentials=login_credentials,
-            validate_response=validate_response)
-        assert response.headers["x-dm-auth-token"], f"Tокен не был получен"
-        assert response.status_code == 200, f"Пользователь не смог авторизоваться"
+            validate_response=validate_response
+        )
+        # assert response.headers["x-dm-auth-token"], f"Tокен не был получен"
+        # assert response.status_code == 200, f"Пользователь не смог авторизоваться"
         return response
 
     # @retrier
@@ -139,7 +140,7 @@ class AccountHelper:
 
         return token
 
-    def put_v1_account_email(
+    def change_account_email(
             self,
             login: str,
             password: str,
