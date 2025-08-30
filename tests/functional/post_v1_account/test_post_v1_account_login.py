@@ -1,6 +1,5 @@
 import structlog
 
-
 structlog.configure(
     processors=[
         structlog.processors.JSONRenderer(
@@ -15,7 +14,7 @@ structlog.configure(
 def test_post_v1_account_login(
         account_helper,
         prepare_user
-        ):
+):
     # регистрация пользователя
     login = prepare_user.login
     password = prepare_user.password

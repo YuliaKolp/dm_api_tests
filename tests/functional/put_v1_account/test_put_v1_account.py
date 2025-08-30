@@ -3,7 +3,6 @@ def test_put_v1_account(
         prepare_user
         ):
     # регистрация пользователя
-
     login = prepare_user.login
     password = prepare_user.password
     email = prepare_user.email
