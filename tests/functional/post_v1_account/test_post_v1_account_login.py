@@ -1,5 +1,7 @@
 import structlog
 
+from checkers.http_checkers import check_status_code_http
+
 structlog.configure(
     processors=[
         structlog.processors.JSONRenderer(
@@ -23,5 +25,5 @@ def test_post_v1_account_login(
     auth_account_helper.register_and_activate_new_user(login=login, password=password, email=email)
 
     # авторизоваться c неверным паролем
-    response = auth_account_helper.user_login(login=login, password=f'{password}_WRONG')
-    assert response.status_code == 400, (f"User cannot authorise!{response.json()}")
+    with check_status_code_http(400, 'One or more validation errors occurred.'):
+        auth_account_helper.user_login(login=login, password=f'{password}_WRONG')

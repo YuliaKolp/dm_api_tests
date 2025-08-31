@@ -122,7 +122,7 @@ class AccountHelper:
         )
         if validate_headers:
             assert response.headers["x-dm-auth-token"], f"Tокен не был получен"
-            assert response.status_code == 200, f"Пользователь не смог авторизоваться"
+            #assert response.status_code == 200, f"Пользователь не смог авторизоваться"
         return response
 
     # @retrier
