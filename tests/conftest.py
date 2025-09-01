@@ -1,0 +1,60 @@
+from collections import namedtuple
+from datetime import datetime
+
+import pytest
+from helpers.account_helper import AccountHelper
+from restclient.configuration import Configuration as DmApiConfiguration
+from restclient.configuration import Configuration as MailhogConfiguration
+from services.api_mailhog import MailHogApi
+from services.dm_api_account import DMApiAccount
+
+fixture_scope_value = "session"  # "session" "function"
+
+LOGIN_PREFIX = "yk_test"
+
+@pytest.fixture(scope=fixture_scope_value)
+def mailhog_api():
+    mailhog_configuration = MailhogConfiguration(host='http://5.63.153.31:5025')
+    mailhog_client = MailHogApi(configuration=mailhog_configuration)
+    return mailhog_client
+
+
+@pytest.fixture(scope=fixture_scope_value)
+def account_api():
+    dm_api_configuration = DmApiConfiguration(host='http://5.63.153.31:5051', disable_log=False)
+    account = DMApiAccount(configuration=dm_api_configuration)
+    return account
+
+
+@pytest.fixture(scope=fixture_scope_value)
+def account_helper(
+        account_api,
+        mailhog_api
+):
+    account_helper = AccountHelper(dm_account_api=account_api, mailhog=mailhog_api)
+    return account_helper
+
+@pytest.fixture(scope="function")
+def auth_account_helper(
+        mailhog_api
+):
+    dm_api_configuration = DmApiConfiguration(host='http://5.63.153.31:5051', disable_log=False)
+    account_api = DMApiAccount(configuration=dm_api_configuration)
+
+    account_helper = AccountHelper(dm_account_api=account_api, mailhog=mailhog_api)
+    account_helper.auth_client(
+        login="yk_test23_08_2025_21_50_50", password="123456789"
+        )  # yk_test30_08_2025_17_46_58_584317
+
+    return account_helper
+
+@pytest.fixture
+def prepare_user():
+    now = datetime.now()
+    data = now.strftime("%d_%m_%Y_%H_%M_%S_%f")  # add microsecond to timestamp to make email unique
+    login = f"{LOGIN_PREFIX }{data}"
+    password = '123456789'
+    email = f'{login}@mail.ru'
+    User = namedtuple("User", ["login", "password", "email"])
+    user = User(login=login, password=password, email=email)
+    return user
