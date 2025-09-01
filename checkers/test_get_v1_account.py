@@ -8,38 +8,36 @@ from hamcrest import (
     has_properties,
     equal_to,
     instance_of,
+    has_items,
 )
 
 LOGIN_PREFIX = "yk_test"
-
-
-class PostV1Account:
+class GetV1Account:
     @classmethod
     def check_response_value(
             cls,
             response
             ):
-        today = datetime.now().strftime('%Y-%m-%d')
+
         assert_that(
             response, all_of(
-                has_property('resource', has_property('login', starts_with(LOGIN_PREFIX))),
-                has_property('resource', has_property('registration', instance_of(datetime))),
                 has_property(
                     'resource', has_properties(
                         {
+                            'login': starts_with(LOGIN_PREFIX),
+                            'online': instance_of(datetime),
+                            'registration': instance_of(datetime),
+                            'roles': has_items("Guest", "Player"),
                             'rating': has_properties(
                                 {
                                     "enabled": equal_to(True),
                                     "quality": equal_to(0),
                                     "quantity": equal_to(0)
-
                                 }
                             )
-
                         }
                     )
                 )
 
             )
         )
-        assert_that(str(response.resource.registration), starts_with(today))

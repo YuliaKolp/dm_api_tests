@@ -13,6 +13,7 @@ from hamcrest import (
 )
 
 from checkers.http_checkers import check_status_code_http
+from checkers.test_get_v1_account import GetV1Account
 
 LOGIN_PREFIX = "yk_test"
 # from conftest import LOGIN_PREFIX
@@ -31,31 +32,12 @@ structlog.configure(
 def test_get_v1_account_auth(
         auth_account_helper
 ):
-    with check_status_code_http(200):
-        response = auth_account_helper.get_user(validate_response=True)
-        assert_that(
-            response, all_of(
-                has_property(
-                    'resource', has_properties(
-                        {
-                            'login': starts_with(LOGIN_PREFIX),
-                            'online': instance_of(datetime),
-                            'registration': instance_of(datetime),
-                            'roles': has_items("Guest", "Player"),
-                            'rating': has_properties(
-                                {
-                                    "enabled": equal_to(True),
-                                    "quality": equal_to(0),
-                                    "quantity": equal_to(0)
-                                }
-                            )
-                        }
-                    )
-                )
+    response = auth_account_helper.get_user(validate_response=True)
 
-            )
+    GetV1Account.check_response_value(response)
 
-        )
+
+
 
 
 def test_get_v1_account_no_auth(
