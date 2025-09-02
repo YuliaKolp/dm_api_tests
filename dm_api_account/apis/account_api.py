@@ -1,4 +1,5 @@
 from dm_api_account.models.registration import Registration
+from dm_api_account.models.user_details_envelope import UserDetailsEnvelope
 from dm_api_account.models.user_envelope import UserEnvelope
 from restclient.client import RestClient
 
@@ -34,7 +35,7 @@ class AccountApi(RestClient):
             **kwargs
         )
         if validate_response:
-            return UserEnvelope(**response.json())
+            return UserDetailsEnvelope(**response.json())
         return response
 
     def put_v1_account_token(
