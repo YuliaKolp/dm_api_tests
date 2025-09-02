@@ -2,11 +2,23 @@ from collections import namedtuple
 from datetime import datetime
 
 import pytest
+import structlog
+
 from helpers.account_helper import AccountHelper
 from restclient.configuration import Configuration as DmApiConfiguration
 from restclient.configuration import Configuration as MailhogConfiguration
 from services.api_mailhog import MailHogApi
 from services.dm_api_account import DMApiAccount
+
+structlog.configure(
+    processors=[
+        structlog.processors.JSONRenderer(
+            indent=4,
+            ensure_ascii=True,
+            sort_keys=True
+        )
+    ]
+)
 
 fixture_scope_value = "session"  # "session" "function"
 
@@ -52,7 +64,7 @@ def auth_account_helper(
 def prepare_user():
     now = datetime.now()
     data = now.strftime("%d_%m_%Y_%H_%M_%S_%f")  # add microsecond to timestamp to make email unique
-    login = f"{LOGIN_PREFIX }{data}"
+    login = f"{LOGIN_PREFIX}{data}"
     password = '123456789'
     email = f'{login}@mail.ru'
     User = namedtuple("User", ["login", "password", "email"])

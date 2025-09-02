@@ -1,6 +1,5 @@
 from checkers.http_checkers import check_status_code_http
 
-
 def test_put_v1_account(
         account_helper,
         prepare_user

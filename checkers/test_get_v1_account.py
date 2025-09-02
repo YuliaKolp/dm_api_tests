@@ -11,12 +11,12 @@ from hamcrest import (
     has_items,
 )
 
-LOGIN_PREFIX = "yk_test"
 class GetV1Account:
     @classmethod
     def check_response_value(
             cls,
-            response
+            response,
+            login_prefix="yk_test"
             ):
 
         assert_that(
@@ -24,7 +24,7 @@ class GetV1Account:
                 has_property(
                     'resource', has_properties(
                         {
-                            'login': starts_with(LOGIN_PREFIX),
+                            'login': starts_with(login_prefix),
                             'online': instance_of(datetime),
                             'registration': instance_of(datetime),
                             'roles': has_items("Guest", "Player"),

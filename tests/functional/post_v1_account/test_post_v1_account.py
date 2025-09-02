@@ -1,17 +1,4 @@
-import structlog
-
 from checkers.test_post_v1_account import PostV1Account
-
-structlog.configure(
-    processors=[
-        structlog.processors.JSONRenderer(
-            indent=4,
-            ensure_ascii=True,
-            sort_keys=True
-        )
-    ]
-)
-
 
 def test_post_v1_account(
         account_helper,

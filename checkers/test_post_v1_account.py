@@ -10,19 +10,18 @@ from hamcrest import (
     instance_of,
 )
 
-LOGIN_PREFIX = "yk_test"
-
 
 class PostV1Account:
     @classmethod
     def check_response_value(
             cls,
-            response
+            response,
+            login_prefix="yk_test"
             ):
         today = datetime.now().strftime('%Y-%m-%d')
         assert_that(
             response, all_of(
-                has_property('resource', has_property('login', starts_with(LOGIN_PREFIX))),
+                has_property('resource', has_property('login', starts_with(login_prefix))),
                 has_property('resource', has_property('registration', instance_of(datetime))),
                 has_property(
                     'resource', has_properties(
