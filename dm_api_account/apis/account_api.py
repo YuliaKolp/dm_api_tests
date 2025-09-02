@@ -60,7 +60,8 @@ class AccountApi(RestClient):
 
     def put_v1_account_email(
             self,
-            json_data
+            json_data,
+            validate_response=True
     ):
         """
         Change registered user email
@@ -75,6 +76,8 @@ class AccountApi(RestClient):
         response = self.put(
             path=f'/v1/account/email', headers=headers, json=json_data,
         )
+        if validate_response:
+            return UserEnvelope(**response.json())
         return response
 
     def put_v1_account_password(
