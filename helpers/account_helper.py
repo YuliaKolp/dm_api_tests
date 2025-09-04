@@ -1,5 +1,8 @@
 import time
-from json import loads
+from json import (
+    loads,
+    JSONDecodeError,
+)
 
 from dm_api_account.models.login_credentials import LoginCredentials
 from dm_api_account.models.registration import Registration
@@ -122,7 +125,6 @@ class AccountHelper:
         )
         if validate_headers:
             assert response.headers["x-dm-auth-token"], f"Tокен не был получен"
-            #assert response.status_code == 200, f"Пользователь не смог авторизоваться"
         return response
 
     # @retrier
@@ -133,11 +135,15 @@ class AccountHelper:
     ):
         token = None
         response = self.mailhog.mailhog_api.get_api_v2_messages()
+
         for item in response.json()['items']:
-            user_data = loads(item['Content']['Body'])
-            user_login = user_data['Login']
-            if user_login == login:
-                token = user_data['ConfirmationLinkUrl'].split('/')[-1]
+            try:
+                user_data = loads(item['Content']['Body'])
+                user_login = user_data['Login']
+                if user_login == login:
+                    token = user_data['ConfirmationLinkUrl'].split('/')[-1]
+            except (JSONDecodeError, KeyError):  ## letter has no standard structure
+                continue
 
         return token
 
@@ -154,8 +160,10 @@ class AccountHelper:
             'email': new_email,
         }
 
-        response = self.dm_account_api.account_api.put_v1_account_email(json_data=json_data, validate_response=validate_response)
-        assert response.status_code == 200, f"Email for user with login '{login}' are NOT changed. Status code is {response.status_code}"
+        response = self.dm_account_api.account_api.put_v1_account_email(
+            json_data=json_data, validate_response=validate_response
+        )
+        return response
 
     def change_user_password(
             self,

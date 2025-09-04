@@ -17,7 +17,7 @@ def test_put_v1_account(
 
     # смена email
     new_email = f'{login}_NEW@mail.ru'
-    account_helper.change_account_email(login=login, password=password, new_email=new_email, validate_response=False)
+    account_helper.change_account_email(login=login, password=password, new_email=new_email, validate_response=True)
 
     # авторизоваться после смены email
     with check_status_code_http(403, "User is inactive. Address the technical support for more details"):
