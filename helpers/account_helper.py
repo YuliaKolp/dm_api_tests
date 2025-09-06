@@ -4,6 +4,8 @@ from json import (
     JSONDecodeError,
 )
 
+import allure
+
 from dm_api_account.models.login_credentials import LoginCredentials
 from dm_api_account.models.registration import Registration
 from services.api_mailhog import MailHogApi
@@ -63,6 +65,7 @@ class AccountHelper:
         self.dm_account_api.account_api.set_headers(token)
         self.dm_account_api.login_api.set_headers(token)
 
+    @allure.step("Регистрация нового пользователя")
     def register_new_user(
             self,
             login: str,
@@ -80,6 +83,7 @@ class AccountHelper:
 
         return response
 
+    @allure.step("Регистрация и активация нового пользователя")
     def register_and_activate_new_user(
             self,
             login: str,
@@ -106,6 +110,7 @@ class AccountHelper:
         assert response.status_code == 200, f"User is not activated {response.json()}"
         return response
 
+    @allure.step("Аутентификация пользователя")
     def user_login(
             self,
             login: str,
