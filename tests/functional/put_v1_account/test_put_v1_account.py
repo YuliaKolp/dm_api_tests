@@ -1,24 +1,31 @@
+import allure
 from checkers.http_checkers import check_status_code_http
 
-def test_put_v1_account(
-        account_helper,
-        prepare_user
-        ):
-    # регистрация пользователя
-    login = prepare_user.login
-    password = prepare_user.password
-    email = prepare_user.email
 
-    account_helper.register_and_activate_new_user(login=login, password=password, email=email)
+@allure.suite("Тесты на проверку метода PUT v1 account")
+@allure.sub_suite("Позитивные тесты")
+class TestsPutV1Account:
+    @allure.title("Проверка смены почты пользователя")
+    def test_put_v1_account(
+            self,
+            account_helper,
+            prepare_user
+            ):
+        # регистрация пользователя
+        login = prepare_user.login
+        password = prepare_user.password
+        email = prepare_user.email
 
-    # авторизоваться
-    with check_status_code_http(200):
-        account_helper.user_login(login=login, password=password)
+        account_helper.register_and_activate_new_user(login=login, password=password, email=email)
 
-    # смена email
-    new_email = f'{login}_NEW@mail.ru'
-    account_helper.change_account_email(login=login, password=password, new_email=new_email, validate_response=True)
+        # авторизоваться
+        with check_status_code_http(200):
+            account_helper.user_login(login=login, password=password)
 
-    # авторизоваться после смены email
-    with check_status_code_http(403, "User is inactive. Address the technical support for more details"):
-        account_helper.user_login(login=login, password=password, validate_response=False)
+        # смена email
+        new_email = f'{login}_NEW@mail.ru'
+        account_helper.change_account_email(login=login, password=password, new_email=new_email, validate_response=True)
+
+        # авторизоваться после смены email
+        with check_status_code_http(403, "User is inactive. Address the technical support for more details"):
+            account_helper.user_login(login=login, password=password, validate_response=False)

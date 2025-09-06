@@ -134,6 +134,7 @@ class AccountHelper:
 
     # @retrier
     @retry(stop_max_attempt_number=5, retry_on_result=retry_if_result_none, wait_fixed=1000)
+    @allure.step("Активация нового пользователя")
     def get_activation_token_by_login(
             self,
             login
@@ -152,6 +153,7 @@ class AccountHelper:
 
         return token
 
+    @allure.step("Изменение email пользователя")
     def change_account_email(
             self,
             login: str,
@@ -170,6 +172,7 @@ class AccountHelper:
         )
         return response
 
+    @allure.step("Изменение пароля пользователя")
     def change_user_password(
             self,
             login: str,
@@ -196,6 +199,7 @@ class AccountHelper:
         response = self.dm_account_api.account_api.put_v1_account_password(headers=headers, json_data=json_data)
         return response
 
+    @allure.step("Получение данных о пользователе")
     def get_user(
             self,
             validate_response=False
