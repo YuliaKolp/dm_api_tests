@@ -38,9 +38,9 @@ options = (
 @pytest.fixture(scope="session", autouse=True)
 def setup_swagger_coverage():
     reporter = CoverageReporter(api_name="dm-api-account", host="http://5.63.153.31:5051")
-    reporter.cleanup_input_files()
     reporter.setup("/swagger/Account/swagger.json")
     yield
+    reporter.cleanup_input_files()
     reporter.generate_report()
 
 @pytest.fixture(scope=fixture_scope_value, autouse=True)
