@@ -73,6 +73,7 @@ def pytest_addoption(
         ):
     parser.addoption("--env", action="store", default="stg", help="run stg")
 
+
     for option in options:
         parser.addoption(f"--{option}", action="store", default=None)
 
