@@ -41,7 +41,7 @@ jobs:
       - name: Run Coverage
         if: ${{ always() }}
         run: |
-          python -m packages.notifiier.bot
+          python -m packages.notifier.bot.py
 
       - name: Archive allure results
         uses: actions/upload-artifact@v4
