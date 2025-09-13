@@ -1,8 +1,8 @@
 import allure
 
-from dm_api_account.models.registration import Registration
-from dm_api_account.models.user_details_envelope import UserDetailsEnvelope
-from dm_api_account.models.user_envelope import UserEnvelope
+from clients.http.dm_api_account.models.registration import Registration
+from clients.http.dm_api_account.models.user_details_envelope import UserDetailsEnvelope
+from clients.http.dm_api_account.models.user_envelope import UserEnvelope
 from restclient.client import RestClient
 
 

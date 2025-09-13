@@ -1,3 +1,5 @@
+import os
+
 import pytest
 import structlog
 
@@ -5,6 +7,7 @@ from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
 
+from packages.notifier.bot import send_file
 from swagger_coverage_py.reporter import CoverageReporter
 from vyper import v
 
@@ -32,6 +35,8 @@ options = (
     'service.mailhog',
     'user.login',
     'user.password',
+    'telegram.chat_id',
+    'telegram.token'
 )
 
 
@@ -40,8 +45,10 @@ def setup_swagger_coverage():
     reporter = CoverageReporter(api_name="dm-api-account", host="http://5.63.153.31:5051")
     reporter.setup("/swagger/Account/swagger.json")
     yield
-    reporter.cleanup_input_files()
     reporter.generate_report()
+    reporter.cleanup_input_files()
+    #send_file()
+
 
 @pytest.fixture(scope=fixture_scope_value, autouse=True)
 def set_config(
@@ -54,7 +61,11 @@ def set_config(
     v.read_in_config()
     for option in options:
         v.set(f"{option}", request.config.getoption(f"--{option}"))
-    yield
+    os.environ["TELEGRAM_BOT_CHAT_ID"] = v.get("telegram.chat_id")
+    os.environ["TELEGRAM_BOT_ACCESS_TOKEN"] = v.get("telegram.token")
+    request.config.stash['telegram-notifier-addfields']['enviroment'] = config_name
+    request.config.stash['telegram-notifier-addfields']['report'] = 'https://yuliakolp.github.io/dm_api_tests/'
+    #yield
 
 
 def pytest_addoption(
