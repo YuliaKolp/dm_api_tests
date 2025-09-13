@@ -1,7 +1,10 @@
 import allure
+import pytest
+
 from checkers.http_checkers import check_status_code_http
 from utils import utils
 
+#@pytest.mark.skip
 @allure.suite("Тесты на проверку метода PUT v1 account token")
 @allure.sub_suite("Негативные тесты")
 class TestsPutV1AccountToken:
