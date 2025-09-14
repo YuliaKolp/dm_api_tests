@@ -83,7 +83,7 @@ class RestClient:
 
         uri = URI(host=self.host, base_path="", unformatted_path=path, uri_params=kwargs.get("params"))
         RequestSchemaHandler(
-            uri, method, rest_response, kwargs
+            uri, method.lower(), rest_response, kwargs
         ).write_schema()
 
         print(curl)
