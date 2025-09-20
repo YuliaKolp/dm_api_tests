@@ -5,3 +5,7 @@ service:
 user:
   login: "yk_test23_08_2025_21_50_50"
   password: "123456789"
+
+telegram:
+  chat_id: "-1002977979914"
+  token: "7805785729:AAEJnFYDutLvCK0jcrBX3sLfQ8axSlJlmm0"
