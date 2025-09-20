@@ -1,5 +1,10 @@
 import time
-from json import loads
+from json import (
+    loads,
+    JSONDecodeError,
+)
+
+import allure
 
 from dm_api_account.models.login_credentials import LoginCredentials
 from dm_api_account.models.registration import Registration
@@ -60,6 +65,7 @@ class AccountHelper:
         self.dm_account_api.account_api.set_headers(token)
         self.dm_account_api.login_api.set_headers(token)
 
+    @allure.step("Регистрация нового пользователя")
     def register_new_user(
             self,
             login: str,
@@ -77,6 +83,7 @@ class AccountHelper:
 
         return response
 
+    @allure.step("Регистрация и активация нового пользователя")
     def register_and_activate_new_user(
             self,
             login: str,
@@ -103,6 +110,7 @@ class AccountHelper:
         assert response.status_code == 200, f"User is not activated {response.json()}"
         return response
 
+    @allure.step("Аутентификация пользователя")
     def user_login(
             self,
             login: str,
@@ -122,30 +130,36 @@ class AccountHelper:
         )
         if validate_headers:
             assert response.headers["x-dm-auth-token"], f"Tокен не был получен"
-            #assert response.status_code == 200, f"Пользователь не смог авторизоваться"
         return response
 
     # @retrier
     @retry(stop_max_attempt_number=5, retry_on_result=retry_if_result_none, wait_fixed=1000)
+    @allure.step("Активация нового пользователя")
     def get_activation_token_by_login(
             self,
             login
     ):
         token = None
         response = self.mailhog.mailhog_api.get_api_v2_messages()
+
         for item in response.json()['items']:
-            user_data = loads(item['Content']['Body'])
-            user_login = user_data['Login']
-            if user_login == login:
-                token = user_data['ConfirmationLinkUrl'].split('/')[-1]
+            try:
+                user_data = loads(item['Content']['Body'])
+                user_login = user_data['Login']
+                if user_login == login:
+                    token = user_data['ConfirmationLinkUrl'].split('/')[-1]
+            except (JSONDecodeError, KeyError):  ## letter has no standard structure
+                continue
 
         return token
 
+    @allure.step("Изменение email пользователя")
     def change_account_email(
             self,
             login: str,
             password: str,
-            new_email: str
+            new_email: str,
+            validate_response=True
     ):
         json_data = {
             'login': login,
@@ -153,9 +167,12 @@ class AccountHelper:
             'email': new_email,
         }
 
-        response = self.dm_account_api.account_api.put_v1_account_email(json_data=json_data)
-        assert response.status_code == 200, f"Email for user with login '{login}' are NOT changed. Status code is {response.status_code}"
+        response = self.dm_account_api.account_api.put_v1_account_email(
+            json_data=json_data, validate_response=validate_response
+        )
+        return response
 
+    @allure.step("Изменение пароля пользователя")
     def change_user_password(
             self,
             login: str,
@@ -182,6 +199,7 @@ class AccountHelper:
         response = self.dm_account_api.account_api.put_v1_account_password(headers=headers, json_data=json_data)
         return response
 
+    @allure.step("Получение данных о пользователе")
     def get_user(
             self,
             validate_response=False
